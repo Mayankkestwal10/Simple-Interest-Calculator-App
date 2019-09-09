@@ -6,6 +6,10 @@ void main(){
      debugShowCheckedModeBanner: false,
      title: "Simple Interest Calculator App",
      home: SIForm(),
+     theme: ThemeData(
+       primaryColor: Colors.yellow,
+       accentColor: Colors.indigoAccent
+     ),
     )
   );
 }
@@ -23,7 +27,11 @@ class _SIFormState extends State<SIForm>{
   final _minimumPadding = 5.0;
   @override
   Widget build(BuildContext context) {
+    
+    TextStyle textStyle = Theme.of(context).textTheme.title;
+    
     return Scaffold(
+      //resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         title: Text("Simple Interest Calculator")
         ),
@@ -38,6 +46,7 @@ class _SIFormState extends State<SIForm>{
                decoration: InputDecoration(
                  labelText: "Principal",
                  hintText: "Enter Principal e.g. 12000",
+                 labelStyle: textStyle,
                  border: OutlineInputBorder(
                    borderRadius: BorderRadius.circular(5.0)
                  )
@@ -48,12 +57,76 @@ class _SIFormState extends State<SIForm>{
                keyboardType: TextInputType.number,
                decoration: InputDecoration(
                  labelText: "Rate of Interest",
+                 labelStyle: textStyle,
                  hintText: "In percent",
                  border: OutlineInputBorder(
                    borderRadius: BorderRadius.circular(5.0)
                  )
                )
              ),
+
+Padding(
+   padding: EdgeInsets.only(top:_minimumPadding, bottom: _minimumPadding),
+            child: Row(
+              children: <Widget>[
+             Expanded(child: TextField(
+               keyboardType: TextInputType.number,
+               decoration: InputDecoration(
+                 labelText: "Term",
+                 labelStyle: textStyle,
+                 hintText: "Time in years",
+                 border: OutlineInputBorder(
+                   borderRadius: BorderRadius.circular(5.0)
+                 )
+               )
+             ) ,),  
+
+             Container(width: _minimumPadding*5,),
+
+      Expanded( 
+        child:
+             DropdownButton<String>(
+               items: _currencies.map((String value){
+                  return DropdownMenuItem<String>(
+                    child: Text(value),
+                    value: value,
+                    );
+               }).toList(),
+               value: 'Rupees',
+               onChanged: (String newValueSelected){
+
+               }
+             )
+             )
+              ],
+             ),)
+            ,
+            Padding(
+              padding: EdgeInsets.only(bottom: _minimumPadding, top: _minimumPadding),
+              child:
+              Row(
+             children: <Widget>[
+
+               Expanded(
+                 child: RaisedButton(
+                   child: Text("Calculate"),
+                   onPressed: (){
+
+                   },
+                 ),
+
+               )
+
+
+             ],
+
+            )),
+
+            Padding(
+              padding: EdgeInsets.all(_minimumPadding*2),
+              child: Text("Todo Text"),
+            )
+            
             ],
          // ),
           )
