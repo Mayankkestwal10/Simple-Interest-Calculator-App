@@ -7,7 +7,8 @@ void main(){
      title: "Simple Interest Calculator App",
      home: SIForm(),
      theme: ThemeData(
-       primaryColor: Colors.yellow,
+       brightness: Brightness.dark,
+       primaryColor: Colors.blue,
        accentColor: Colors.indigoAccent
      ),
     )
@@ -23,8 +24,26 @@ class SIForm extends StatefulWidget{
 }
 
 class _SIFormState extends State<SIForm>{
+
+  var _formKey = GlobalKey<FormState>();
+
   var _currencies = ['Rupees', 'Dollars', 'Pounds'];
   final _minimumPadding = 5.0;
+
+  var _currentItemSelected = '';
+
+  @override
+	void initState() {
+		super.initState();
+		_currentItemSelected = _currencies[0];
+	}
+  
+  TextEditingController principalController = TextEditingController();
+  TextEditingController roiController = TextEditingController();
+  TextEditingController termController = TextEditingController();
+
+  String displayResult = '';
+
   @override
   Widget build(BuildContext context) {
     
@@ -35,29 +54,45 @@ class _SIFormState extends State<SIForm>{
       appBar: AppBar(
         title: Text("Simple Interest Calculator")
         ),
-        body: Container(
-          margin: EdgeInsets.all(_minimumPadding*2),
+        body: Form(
+          key: _formKey,
+          child: Padding(
+          padding: EdgeInsets.all(_minimumPadding*2),
           child: ListView(
            //Column(
             children: <Widget>[
              getImageAsset(),           
-             TextField(
+             TextFormField(
                keyboardType: TextInputType.number,
+               controller: principalController,
+               validator: (String value){
+                 if(value.isEmpty){
+                   return "Please enter principal amount";
+                 }
+               },
                decoration: InputDecoration(
                  labelText: "Principal",
                  hintText: "Enter Principal e.g. 12000",
                  labelStyle: textStyle,
+                 errorStyle: TextStyle(color: Colors.yellowAccent, fontSize: 15.0),
                  border: OutlineInputBorder(
                    borderRadius: BorderRadius.circular(5.0)
                  )
                )
              ),
              Padding(padding: EdgeInsets.only(top:_minimumPadding, bottom: _minimumPadding),),
-             TextField(
+             TextFormField(
                keyboardType: TextInputType.number,
+               controller: roiController,
+               validator: (String value){
+                 if(value.isEmpty){
+                   return "Please enter rate of interest";
+                 }
+               },
                decoration: InputDecoration(
                  labelText: "Rate of Interest",
                  labelStyle: textStyle,
+                 errorStyle: TextStyle(color:Colors.yellowAccent, fontSize: 15.0),
                  hintText: "In percent",
                  border: OutlineInputBorder(
                    borderRadius: BorderRadius.circular(5.0)
@@ -69,12 +104,19 @@ Padding(
    padding: EdgeInsets.only(top:_minimumPadding, bottom: _minimumPadding),
             child: Row(
               children: <Widget>[
-             Expanded(child: TextField(
+             Expanded(child: TextFormField(
                keyboardType: TextInputType.number,
+               controller: termController,
+               validator: (String value){
+                 if(value.isEmpty){
+                   return "Please enter time";
+                 }
+               },
                decoration: InputDecoration(
                  labelText: "Term",
                  labelStyle: textStyle,
                  hintText: "Time in years",
+                 errorStyle: TextStyle(color: Colors.yellowAccent, fontSize: 15.0),
                  border: OutlineInputBorder(
                    borderRadius: BorderRadius.circular(5.0)
                  )
@@ -92,9 +134,9 @@ Padding(
                     value: value,
                     );
                }).toList(),
-               value: 'Rupees',
+               value: _currentItemSelected,
                onChanged: (String newValueSelected){
-
+                  _onDropDownItemSelected(newValueSelected);
                }
              )
              )
@@ -109,9 +151,28 @@ Padding(
 
                Expanded(
                  child: RaisedButton(
-                   child: Text("Calculate"),
+                   color: Theme.of(context).accentColor,
+                   textColor: Theme.of(context).primaryColorDark,
+                   child: Text("Calculate", textScaleFactor: 1.5),
                    onPressed: (){
+                       setState(() {
+                         if(_formKey.currentState.validate()){
+                         this.displayResult = _calculateTotalReturn();
+                         }
+                       });
+                   },
+                 ),
 
+               ),
+               Expanded(
+                 child: RaisedButton(
+                   color: Theme.of(context).primaryColorDark,
+                   textColor: Theme.of(context).primaryColorLight,
+                   child: Text("Reset"),
+                   onPressed: (){
+                     setState(() {
+                       _reset();
+                     });
                    },
                  ),
 
@@ -124,13 +185,13 @@ Padding(
 
             Padding(
               padding: EdgeInsets.all(_minimumPadding*2),
-              child: Text("Todo Text"),
+              child: Text(this.displayResult),
             )
             
             ],
          // ),
           )
-    )
+    ))
     );
   }
 
@@ -145,4 +206,30 @@ Padding(
 
   }
 
+
+void _onDropDownItemSelected(String newValueSelected) {
+		setState(() {
+		  this._currentItemSelected = newValueSelected;
+		});
+  }
+
+String _calculateTotalReturn(){
+  double principal = double.parse(principalController.text);
+  double roi = double.parse(roiController.text);
+  double term = double.parse(termController.text);
+
+  double totalAmount = (principal*roi*term)/100;
+  
+  String result = "After $term years, your investment will be worth $totalAmount $_currentItemSelected";
+  return result;
 }
+
+void _reset(){
+  principalController.text = '';
+  roiController.text= '';
+  termController.text = '';
+  displayResult = '';
+  _currentItemSelected = _currencies[0];
+}
+}
+
